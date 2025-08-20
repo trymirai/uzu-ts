@@ -1,0 +1,39 @@
+{
+  "name": "@trymirai/uzu",
+  "version": "0.1.4",
+  "private": false,
+  "main": "uzu.node",
+  "types": "uzu.d.ts",
+  "packageManager": "pnpm@10.14.0",
+  "scripts": {
+    "chat": "ts-node examples/chat_example.ts",
+    "summarize": "ts-node examples/summarization_example.ts",
+    "classify": "ts-node examples/classification_example.ts",
+    "cloud:list": "ts-node examples/list_cloud_models.ts"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "3.1.2",
+    "@types/node": "24.2.0",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.2",
+    "@types/progress": "2.0.7"
+  },
+  "dependencies": {
+    "progress": "2.0.3"
+  },
+  "napi": {
+    "binaryName": "uzu"
+  },
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "files": [
+    "uzu.node",
+    "uzu.d.ts",
+    "package.json",
+    "README.md"
+  ]
+}
