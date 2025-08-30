@@ -1,6 +1,6 @@
 {
   "name": "@trymirai/uzu",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": false,
   "main": "uzu.node",
   "types": "uzu.d.ts",
