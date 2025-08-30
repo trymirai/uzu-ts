@@ -1,13 +1,11 @@
 {
   "name": "@trymirai/uzu",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": false,
   "main": "uzu.node",
   "types": "uzu.d.ts",
   "packageManager": "pnpm@10.14.0",
   "scripts": {
-    "lint": "eslint .",
-    "generate:readme": "cargo run -q --manifest-path ../../Cargo.toml --bin uzu_docgen -- --root $PWD --src $PWD/README.src.md --dest $PWD/README.md",
     "chat": "ts-node examples/chat.ts",
     "summarisation": "ts-node examples/summarisation.ts",
     "classification": "ts-node examples/classification.ts"

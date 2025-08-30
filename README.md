@@ -20,7 +20,7 @@ Node package for [uzu](https://github.com/trymirai/uzu), a **high-performance** 
 - [Broad model support](https://trymirai.com/models)
 - Observable model manager
 
-## Quick Start
+## Examples
 
 Set up your project via [Platform](https://platform.trymirai.com), obtain an `MIRAI_API_KEY`.
 
@@ -37,7 +37,7 @@ Add the `uzu` dependency to your project's `package.json`:
 
 ```json
 "dependencies": {
-    "@trymirai/uzu": "0.1.4"
+    "@trymirai/uzu": "0.1.6"
 }
 ```
 
