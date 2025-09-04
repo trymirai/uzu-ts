@@ -3,6 +3,7 @@ import type { ProgressUpdate, SessionOutput } from '../uzu'
 
 // Visit https://platform.trymirai.com/ to get your API key.
 export const apiKey = 'MIRAI_API_KEY'
+export const resolvedApiKey = process.env.MIRAI_API_KEY ?? apiKey
 
 export function createProgressHandler(): (upd: ProgressUpdate) => void {
     let bar: ProgressBar | null = null

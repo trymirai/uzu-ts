@@ -10,7 +10,7 @@ import {
     type SessionInput,
     type SessionRunConfig,
 } from '../uzu'
-import { apiKey, createPartialOutputHandler, createProgressHandler } from './common'
+import { resolvedApiKey as apiKey, createPartialOutputHandler, createProgressHandler } from './common'
 
 async function main() {
     console.log('Starting Uzu Classification demo...')
