@@ -37,7 +37,7 @@ Add the `uzu` dependency to your project's `package.json`:
 
 ```json
 "dependencies": {
-    "@trymirai/uzu": "0.1.15"
+    "@trymirai/uzu": "0.1.16"
 }
 ```
 
