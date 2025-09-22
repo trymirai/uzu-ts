@@ -95,6 +95,8 @@ export interface LocalModel {
   readonly precision: string
   /** Quantization type if the model is quantized (e.g. "uint4"). */
   readonly quantization?: string
+  /** Optional regex to parse model output provided by the backend. */
+  readonly outputParserRegex?: string
   /** Current download/installation state. */
   readonly state: ModelDownloadState
 }
