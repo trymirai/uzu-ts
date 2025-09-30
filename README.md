@@ -25,7 +25,7 @@ Node package for [uzu](https://github.com/trymirai/uzu), a **high-performance** 
 Set up your project via [Platform](https://platform.trymirai.com), obtain an `MIRAI_API_KEY`.
 
 ```bash
-# Set your API key in `examples/api_key.ts`, then run the examples
+# Set your API key in `examples/common.ts`, then run the examples
 pnpm run chat
 pnpm run summarisation
 pnpm run classification
@@ -37,7 +37,7 @@ Add the `uzu` dependency to your project's `package.json`:
 
 ```json
 "dependencies": {
-    "@trymirai/uzu": "0.1.19"
+    "@trymirai/uzu": "0.1.20"
 }
 ```
 
@@ -52,7 +52,7 @@ const licenseStatus: LicenseStatus = await engine.activate(apiKey)
 
 ```ts
 const localModels: LocalModel[] = await engine.updateRegistry()
-const localModelId = 'Meta-Llama-3.2-1B-Instruct-bfloat16'
+const localModelId = 'Meta-Llama-3.2-1B-Instruct'
 ```
 
 ### Download with progress handle
@@ -62,6 +62,7 @@ const donwloadHandle = engine.downloadHandle(localModelId)
 donwloadHandle.start()
 
 for await (const donwloadProgress of donwloadHandle.progress()) {
+    // Implement a custom download progress handler
     handleProgress(donwloadProgress)
 }
 ```
@@ -69,13 +70,13 @@ for await (const donwloadProgress of donwloadHandle.progress()) {
 Alternatively, you may use engine to control and observe model download:
 
 ```ts
+const modelState: ModelDownloadState = engine.getState(localModelId)
+
 // engine.download(localModelId)
 // engine.pause(localModelId)
 // engine.resume(localModelId)
 // engine.stop(localModelId)
 // engine.delete(localModelId)
-
-const modelState: ModelDownloadState = engine.getState(localModelId)
 ```
 
 ### Session
@@ -83,35 +84,30 @@ const modelState: ModelDownloadState = engine.getState(localModelId)
 `Session` is the core entity used to communicate with the model:
 
 ```ts
-// Choose one of the two options below by commenting/uncommenting:
-// const modelId: ModelID = { type: 'Cloud', id: cloudRepoId }
 const modelId: ModelID = { type: 'Local', id: localModelId }
-const session: Session = engine.createSession(modelId)
+const config: Config = {
+    preset: { type: 'General' },
+    prefillStepSize: { type: 'Default' },
+    contextLength: { type: 'Default' },
+    samplingSeed: { type: 'Default' },
+}
+const session: Session = engine.createSession(modelId, config)
 ```
 
 ### Chat
 
-Load `Session` with a chat-configured config and run it with a specific prompt or a list of messages:
+After creating it, you can run the `Session` with a specific prompt or a list of messages:
 
 ```ts
-const config: SessionConfig = {
-    preset: { type: 'General' },
-    samplingSeed: { type: 'Custom', seed: 12345 },
-    contextLength: { type: 'Default' },
-}
-session.load(config)
-```
-
-```ts
-const input: SessionInput = {
+const input: Input = {
     type: 'Messages',
     messages: [
         {
-            role: SessionMessageRole.System,
+            role: Role.System,
             content: 'You are a helpful assistant.'
         },
         {
-            role: SessionMessageRole.User,
+            role: Role.User,
             content: 'Tell me a short, funny story about a robot.'
         },
     ],
@@ -119,14 +115,14 @@ const input: SessionInput = {
 ```
 
 ```ts
-const runConfig: SessionRunConfig = {
+const runConfig: RunConfig = {
     tokensLimit: 128,
-    samplingConfig: { type: 'Argmax' },
+    enableThinking: true,
+    samplingPolicy: { type: 'Default' },
 }
-```
 
-```ts
 const output = session.run(input, runConfig, (partialOutput) => {
+    // Implement a custom partial output handler
     return handlePartialOutput(partialOutput)
 })
 ```
@@ -136,30 +132,34 @@ const output = session.run(input, runConfig, (partialOutput) => {
 In this example, we will extract a summary of the input text:
 
 ```ts
-const config: SessionConfig = {
+const modelId: ModelID = { type: 'Local', id: localModelId }
+const config: Config = {
     preset: { type: 'Summarization' },
-    samplingSeed: { type: 'Default' },
+    prefillStepSize: { type: 'Default' },
     contextLength: { type: 'Default' },
+    samplingSeed: { type: 'Default' },
 }
-session.load(config)
+const session = engine.createSession(modelId, config)
 ```
 
 ```ts
-const input: SessionInput = {
+const textToSummarize =
+    'A Large Language Model (LLM) is a type of AI that processes and generates text using transformer-based architectures trained on vast datasets. They power chatbots, translation, code assistants, and more.'
+const input: Input = {
     type: 'Text',
     text: `Text is: "${textToSummarize}". Write only summary itself.`,
 }
 ```
 
 ```ts
-const runConfig: SessionRunConfig = {
+const runConfig: RunConfig = {
     tokensLimit: 256,
-    samplingConfig: { type: 'Argmax' },
+    enableThinking: true,
+    samplingPolicy: { type: 'Custom', value: { type: 'Greedy' } },
 }
-```
 
-```ts
 const output = session.run(input, runConfig, (partialOutput) => {
+    // Implement a custom partial output handler
     return handlePartialOutput(partialOutput)
 })
 ```
@@ -169,19 +169,19 @@ const output = session.run(input, runConfig, (partialOutput) => {
 Let’s look at a case where you need to classify input text based on a specific feature, such as `sentiment`:
 
 ```ts
-const feature: SessionClassificationFeature = {
+const feature: ClassificationFeature = {
     name: 'sentiment',
     values: ['Happy', 'Sad', 'Angry', 'Fearful', 'Surprised', 'Disgusted'],
 }
-```
-
-```ts
-const config: SessionConfig = {
+const config: Config = {
     preset: { type: 'Classification', feature },
-    samplingSeed: { type: 'Default' },
+    prefillStepSize: { type: 'Default' },
     contextLength: { type: 'Default' },
+    samplingSeed: { type: 'Default' },
 }
-session.load(config)
+
+const modelId: ModelID = { type: 'Local', id: localModelId }
+const session = engine.createSession(modelId, config)
 ```
 
 ```ts
@@ -190,18 +190,18 @@ const textToDetectFeature =
 const classificationPrompt =
     `Text is: "${textToDetectFeature}". Choose ${feature.name} from the list: ${feature.values.join(', ')}. ` +
     "Answer with one word. Don't add a dot at the end."
-const input: SessionInput = { type: 'Text', text: classificationPrompt }
+const input: Input = { type: 'Text', text: classificationPrompt }
 ```
 
 ```ts
-const runConfig: SessionRunConfig = {
+const runConfig: RunConfig = {
     tokensLimit: 32,
-    samplingConfig: { type: 'Argmax' },
+    enableThinking: true,
+    samplingPolicy: { type: 'Custom', value: { type: 'Greedy' } },
 }
-```
 
-```ts
 const output = session.run(input, runConfig, (partialOutput) => {
+    // Implement a custom partial output handler
     return handlePartialOutput(partialOutput)
 })
 ```
@@ -211,5 +211,3 @@ In this example, you will get the answer `Happy` immediately after the prefill s
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-

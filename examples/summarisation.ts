@@ -1,13 +1,13 @@
 import {
     Engine,
     Phase,
+    type Config,
+    type Input,
     type LicenseStatus,
     type LocalModel,
     type ModelDownloadState,
     type ModelID,
-    type SessionConfig,
-    type SessionInput,
-    type SessionRunConfig,
+    type RunConfig,
 } from '../uzu'
 import { resolvedApiKey as apiKey, createPartialOutputHandler, createProgressHandler } from './common'
 
@@ -30,7 +30,7 @@ async function main() {
     console.log('Updating model registry...')
 
     const localModels: LocalModel[] = await engine.updateRegistry()
-    const localModelId = 'Meta-Llama-3.2-1B-Instruct-bfloat16'
+    const localModelId = 'Meta-Llama-3.2-1B-Instruct'
 
     console.log(`Registry updated. Found ${localModels.length} models.`)
     console.log(`Checking model: ${localModelId}`)
@@ -51,44 +51,43 @@ async function main() {
 
     console.log('Model is ready for use.')
 
+    // snippet:session-create-summarization
     const modelId: ModelID = { type: 'Local', id: localModelId }
-    const session = engine.createSession(modelId)
-
-    // snippet:session-load
-    const config: SessionConfig = {
+    const config: Config = {
         preset: { type: 'Summarization' },
-        samplingSeed: { type: 'Default' },
+        prefillStepSize: { type: 'Default' },
         contextLength: { type: 'Default' },
+        samplingSeed: { type: 'Default' },
     }
-    session.load(config)
-    // endsnippet:session-load
+    const session = engine.createSession(modelId, config)
+    // endsnippet:session-create-summarization
 
     console.log('Loaded Summarization preset.')
 
+    // snippet:session-input-summarization
     const textToSummarize =
         'A Large Language Model (LLM) is a type of AI that processes and generates text using transformer-based architectures trained on vast datasets. They power chatbots, translation, code assistants, and more.'
-    // snippet:session-input
-    const input: SessionInput = {
+    const input: Input = {
         type: 'Text',
         text: `Text is: "${textToSummarize}". Write only summary itself.`,
     }
-    // endsnippet:session-input
-
-    // snippet:session-run-config
-    const runConfig: SessionRunConfig = {
-        tokensLimit: 256,
-        samplingConfig: { type: 'Argmax' },
-    }
-    // endsnippet:session-run-config
+    // endsnippet:session-input-summarization
 
     try {
         process.stdout.write('Summary: ')
         const handlePartialOutput = createPartialOutputHandler()
-        // snippet:session-run
+        // snippet:session-run-summarization
+        const runConfig: RunConfig = {
+            tokensLimit: 256,
+            enableThinking: true,
+            samplingPolicy: { type: 'Custom', value: { type: 'Greedy' } },
+        }
+
         const output = session.run(input, runConfig, (partialOutput) => {
+            // Implement a custom partial output handler
             return handlePartialOutput(partialOutput)
         })
-        // endsnippet:session-run
+        // endsnippet:session-run-summarization
         console.log('\n--- End of Generation ---')
         console.log('Final Stats:', output.stats)
     } catch (e) {

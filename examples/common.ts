@@ -1,5 +1,5 @@
 import ProgressBar from 'progress'
-import type { ProgressUpdate, SessionOutput } from '../uzu'
+import type { Output, ProgressUpdate } from '../uzu'
 
 // Visit https://platform.trymirai.com/ to get your API key.
 export const apiKey = 'MIRAI_API_KEY'
@@ -29,12 +29,12 @@ export function createProgressHandler(): (upd: ProgressUpdate) => void {
     }
 }
 
-export function createPartialOutputHandler(): (partial: SessionOutput) => boolean {
+export function createPartialOutputHandler(): (partial: Output) => boolean {
     let lastLength = 0
-    return (partial: SessionOutput): boolean => {
-        const newText = partial.text.substring(lastLength)
+    return (partial: Output): boolean => {
+        const newText = partial.text.original.substring(lastLength)
         process.stdout.write(newText)
-        lastLength = partial.text.length
+        lastLength = partial.text.original.length
         return true
     }
 }

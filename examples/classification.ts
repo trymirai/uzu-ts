@@ -1,14 +1,14 @@
 import {
     Engine,
     Phase,
+    type ClassificationFeature,
+    type Config,
+    type Input,
     type LicenseStatus,
     type LocalModel,
     type ModelDownloadState,
     type ModelID,
-    type SessionClassificationFeature,
-    type SessionConfig,
-    type SessionInput,
-    type SessionRunConfig,
+    type RunConfig
 } from '../uzu'
 import { resolvedApiKey as apiKey, createPartialOutputHandler, createProgressHandler } from './common'
 
@@ -31,7 +31,7 @@ async function main() {
     console.log('Updating model registry...')
 
     const localModels: LocalModel[] = await engine.updateRegistry()
-    const localModelId = 'Meta-Llama-3.2-1B-Instruct-bfloat16'
+    const localModelId = 'Meta-Llama-3.2-1B-Instruct'
 
     console.log(`Registry updated. Found ${localModels.length} models.`)
     console.log(`Checking model: ${localModelId}`)
@@ -52,51 +52,48 @@ async function main() {
 
     console.log('Model is ready for use.')
 
-    const modelId: ModelID = { type: 'Local', id: localModelId }
-    const session = engine.createSession(modelId)
-
-    // snippet:classification-feature
-    const feature: SessionClassificationFeature = {
+    // snippet:session-create-classification
+    const feature: ClassificationFeature = {
         name: 'sentiment',
         values: ['Happy', 'Sad', 'Angry', 'Fearful', 'Surprised', 'Disgusted'],
     }
-    // endsnippet:classification-feature
-
-    // snippet:session-load
-    const config: SessionConfig = {
+    const config: Config = {
         preset: { type: 'Classification', feature },
-        samplingSeed: { type: 'Default' },
+        prefillStepSize: { type: 'Default' },
         contextLength: { type: 'Default' },
+        samplingSeed: { type: 'Default' },
     }
-    session.load(config)
-    // endsnippet:session-load
+
+    const modelId: ModelID = { type: 'Local', id: localModelId }
+    const session = engine.createSession(modelId, config)
+    // endsnippet:session-create-classification
 
     console.log('Loaded Classification preset.')
 
-    // snippet:session-input
+    // snippet:session-input-classification
     const textToDetectFeature =
         "Today's been awesome! Everything just feels right, and I can't stop smiling."
     const classificationPrompt =
         `Text is: "${textToDetectFeature}". Choose ${feature.name} from the list: ${feature.values.join(', ')}. ` +
         "Answer with one word. Don't add a dot at the end."
-    const input: SessionInput = { type: 'Text', text: classificationPrompt }
-    // endsnippet:session-input
-
-    // snippet:session-run-config
-    const runConfig: SessionRunConfig = {
-        tokensLimit: 32,
-        samplingConfig: { type: 'Argmax' },
-    }
-    // endsnippet:session-run-config
+    const input: Input = { type: 'Text', text: classificationPrompt }
+    // endsnippet:session-input-classification
 
     try {
         process.stdout.write('Prediction: ')
         const handlePartialOutput = createPartialOutputHandler()
-        // snippet:session-run
+        // snippet:session-run-classification
+        const runConfig: RunConfig = {
+            tokensLimit: 32,
+            enableThinking: true,
+            samplingPolicy: { type: 'Custom', value: { type: 'Greedy' } },
+        }
+
         const output = session.run(input, runConfig, (partialOutput) => {
+            // Implement a custom partial output handler
             return handlePartialOutput(partialOutput)
         })
-        // endsnippet:session-run
+        // endsnippet:session-run-classification
         console.log('\n--- End of Generation ---')
         console.log('Final Stats:', output.stats)
     } catch (e) {

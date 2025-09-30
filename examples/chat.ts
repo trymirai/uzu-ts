@@ -1,15 +1,15 @@
 import {
     Engine,
     Phase,
-    SessionMessageRole,
+    Role,
+    type Config,
+    type Input,
     type LicenseStatus,
     type LocalModel,
     type ModelDownloadState,
     type ModelID,
+    type RunConfig,
     type Session,
-    type SessionConfig,
-    type SessionInput,
-    type SessionRunConfig,
 } from '../uzu'
 import { resolvedApiKey as apiKey, createPartialOutputHandler, createProgressHandler } from './common'
 
@@ -17,10 +17,8 @@ async function main() {
     console.log('Starting Uzu showcase...')
 
     // snippet:activation
-
     const engine = new Engine()
     const licenseStatus: LicenseStatus = await engine.activate(apiKey)
-
     // endsnippet:activation
 
     console.log('License status:', licenseStatus.type)
@@ -36,98 +34,87 @@ async function main() {
     console.log('Updating model registry...')
 
     // snippet:registry
-
     const localModels: LocalModel[] = await engine.updateRegistry()
-    const localModelId = 'Meta-Llama-3.2-1B-Instruct-bfloat16'
-
+    const localModelId = 'Meta-Llama-3.2-1B-Instruct'
     // endsnippet:registry
 
     console.log(`Registry updated. Found ${localModels.length} models.`)
     console.log(`Checking model: ${localModelId}`)
 
-    // snippet:model-state
+    // snippet:storage-methods
+    const modelState: ModelDownloadState = engine.getState(localModelId)
 
     // engine.download(localModelId)
     // engine.pause(localModelId)
     // engine.resume(localModelId)
     // engine.stop(localModelId)
     // engine.delete(localModelId)
-
-    const modelState: ModelDownloadState = engine.getState(localModelId)
-
-    // endsnippet:model-state
+    // endsnippet:storage-methods
 
     if (modelState.phase !== Phase.Downloaded) {
         console.log('Model not downloaded. Starting download...')
 
         const handleProgress = createProgressHandler()
 
-        // snippet:download
-
+        // snippet:download-handle
         const donwloadHandle = engine.downloadHandle(localModelId)
         donwloadHandle.start()
 
         for await (const donwloadProgress of donwloadHandle.progress()) {
+            // Implement a custom download progress handler
             handleProgress(donwloadProgress)
         }
-        // endsnippet:download
+        // endsnippet:download-handle
     }
 
 
     console.log('Model is ready for use.')
 
-    // snippet:session-create
-
-    // Choose one of the two options below by commenting/uncommenting:
-    // const modelId: ModelID = { type: 'Cloud', id: cloudRepoId }
+    // snippet:session-create-general
     const modelId: ModelID = { type: 'Local', id: localModelId }
-    const session: Session = engine.createSession(modelId)
-
-    // endsnippet:session-create
-
-    // snippet:session-load
-    const config: SessionConfig = {
+    const config: Config = {
         preset: { type: 'General' },
-        samplingSeed: { type: 'Custom', seed: 12345 },
+        prefillStepSize: { type: 'Default' },
         contextLength: { type: 'Default' },
+        samplingSeed: { type: 'Default' },
     }
-    session.load(config)
-    // endsnippet:session-load
+    const session: Session = engine.createSession(modelId, config)
+    // endsnippet:session-create-general
 
     console.log('Loaded General Chat preset.')
 
-    // snippet:session-input
-    const input: SessionInput = {
+    // snippet:session-input-general
+    const input: Input = {
         type: 'Messages',
         messages: [
             {
-                role: SessionMessageRole.System,
+                role: Role.System,
                 content: 'You are a helpful assistant.'
             },
             {
-                role: SessionMessageRole.User,
+                role: Role.User,
                 content: 'Tell me a short, funny story about a robot.'
             },
         ],
     }
-    // endsnippet:session-input
-
-    // snippet:session-run-config
-    const runConfig: SessionRunConfig = {
-        tokensLimit: 128,
-        samplingConfig: { type: 'Argmax' },
-    }
-    // endsnippet:session-run-config
+    // endsnippet:session-input-general
 
     try {
         console.log('User: Tell me a short, funny story about a robot.')
         process.stdout.write('Assistant: ')
         const handlePartialOutput = createPartialOutputHandler()
-        // snippet:session-run
+        // snippet:session-run-general
+        const runConfig: RunConfig = {
+            tokensLimit: 128,
+            enableThinking: true,
+            samplingPolicy: { type: 'Default' },
+        }
+
         const output = session.run(input, runConfig, (partialOutput) => {
+            // Implement a custom partial output handler
             return handlePartialOutput(partialOutput)
         })
-        // endsnippet:session-run
+        // endsnippet:session-run-general
         console.log('\n--- End of Generation ---')
         console.log('Final Stats:', output.stats)
     } catch (e) {

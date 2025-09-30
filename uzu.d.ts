@@ -27,7 +27,7 @@ export declare class Engine {
   updateRegistry(): Promise<Array<LocalModel>>
   activate(apiKey: string): Promise<LicenseStatus>
   constructor()
-  createSession(modelId: ModelID): Session
+  createSession(modelId: ModelID, config: Config): Session
 }
 
 export declare class ProgressStream {
@@ -44,8 +44,12 @@ export declare class ProgressUpdate {
 }
 
 export declare class Session {
-  load(config: SessionConfig): void
-  run(input: SessionInput, runConfig: SessionRunConfig, progressCallback?: (arg: SessionOutput) => boolean | undefined | null): SessionOutput
+  run(input: Input, config: RunConfig, progress?: (arg: Output) => boolean | undefined | null): Output
+}
+
+export interface ClassificationFeature {
+  name: string
+  values: Array<string>
 }
 
 export interface CloudModel {
@@ -54,24 +58,34 @@ export interface CloudModel {
   readonly vendor: string
 }
 
+export interface Config {
+  preset: Preset
+  prefillStepSize: PrefillStepSize
+  contextLength: ContextLength
+  samplingSeed: SamplingSeed
+}
+
 export type ContextLength =
   | { type: 'Default' }
+  | { type: 'Maximal' }
   | { type: 'Custom', length: number }
-
-export interface DecoderTestResult {
-  placementLog: string
-  iterations: number
-  timePerToken: number
-  tokensPerSecond: number
-  success: boolean
-  error?: string
-}
 
 export type DownloaderError =
   | { type: 'Http', message: string }
   | { type: 'Io', message: string }
   | { type: 'AlreadyExists', path: string }
   | { type: 'Generic', message: string }
+
+export declare const enum FinishReason {
+  Stop = 0,
+  Length = 1,
+  Cancelled = 2,
+  ContextLimitReached = 3
+}
+
+export type Input =
+  | { type: 'Text', text: string }
+  | { type: 'Messages', messages: Array<Message> }
 
 export type LicenseStatus =
   | { type: 'NotActivated' }
@@ -85,20 +99,24 @@ export type LicenseStatus =
   | { type: 'HttpError', code: number }
 
 export interface LocalModel {
-  /** Unique identifier of the model in the form `<vendor>-<name>-<precision>`. */
+  /** Unique identifier of the model in the form `<vendor>-<name>`. */
   readonly identifier: string
   /** Vendor/author of the model (e.g. "Llama"). */
   readonly vendor: string
-  /** Human-readable model name without vendor/precision (e.g. "3B-Instruct"). */
+  /** Human-readable model name without vendor (e.g. "3B-Instruct"). */
   readonly name: string
-  /** Numerical precision of the weights (e.g. "float16"). */
-  readonly precision: string
   /** Quantization type if the model is quantized (e.g. "uint4"). */
   readonly quantization?: string
   /** Optional regex to parse model output provided by the backend. */
   readonly outputParserRegex?: string
   /** Current download/installation state. */
   readonly state: ModelDownloadState
+}
+
+export interface Message {
+  role: Role
+  content: string
+  reasoningContent?: string
 }
 
 export interface ModelDownloadState {
@@ -116,6 +134,17 @@ export type ModelID =
   | { type: 'Local', id: string }
   | { type: 'Cloud', id: string }
 
+export interface Output {
+  text: Text
+  stats: Stats
+  finishReason?: FinishReason
+}
+
+export interface ParsedText {
+  chainOfThought?: string
+  response?: string
+}
+
 export declare const enum Phase {
   NotDownloaded = 0,
   Downloading = 1,
@@ -124,87 +153,59 @@ export declare const enum Phase {
   Error = 4
 }
 
-export type SamplingConfig =
-  | { type: 'Argmax' }
-  | { type: 'TopP', topP: number }
-  | { type: 'Categorical', temperature: number }
-
-export type SamplingSeed =
+export type PrefillStepSize =
   | { type: 'Default' }
-  | { type: 'Custom', seed: number }
+  | { type: 'Maximal' }
+  | { type: 'Custom', length: number }
 
-export interface SessionClassificationFeature {
-  name: string
-  values: Array<string>
-}
+export type Preset =
+  | { type: 'General' }
+  | { type: 'Classification', feature: ClassificationFeature }
+  | { type: 'Summarization' }
 
-export interface SessionConfig {
-  preset: SessionPreset
-  samplingSeed: SamplingSeed
-  contextLength: ContextLength
-}
-
-export type SessionInput =
-  | { type: 'Text', text: string }
-  | { type: 'Messages', messages: Array<SessionMessage> }
-
-export interface SessionMessage {
-  role: SessionMessageRole
-  content: string
-}
-
-export declare const enum SessionMessageRole {
+export declare const enum Role {
   System = 0,
   User = 1,
   Assistant = 2
 }
 
-export interface SessionOutput {
-  text: string
-  stats: SessionOutputStats
-  finishReason?: SessionOutputFinishReason
+export interface RunConfig {
+  tokensLimit: number
+  enableThinking: boolean
+  samplingPolicy: SamplingPolicy
 }
 
-export declare const enum SessionOutputFinishReason {
-  Stop = 0,
-  Length = 1,
-  Cancelled = 2
-}
-
-export interface SessionOutputRunStats {
+export interface RunStats {
   count: bigint
   averageDuration: number
 }
 
-export interface SessionOutputStats {
-  prefillStats: SessionOutputStepStats
-  generateStats?: SessionOutputStepStats
-  totalStats: SessionOutputTotalStats
+export type SamplingMethod =
+  | { type: 'Greedy' }
+  | { type: 'Temperature', temperature: number }
+  | { type: 'TopP', topP: number }
+
+export type SamplingPolicy =
+  | { type: 'Default' }
+  | { type: 'Custom', value: SamplingMethod }
+
+export type SamplingSeed =
+  | { type: 'Default' }
+  | { type: 'Custom', seed: number }
+
+export interface Stats {
+  prefillStats: StepStats
+  generateStats?: StepStats
+  totalStats: TotalStats
 }
 
-export interface SessionOutputStepStats {
+export interface StepStats {
   duration: number
   suffixLength: bigint
   tokensCount: bigint
   tokensPerSecond: number
-  modelRun: SessionOutputRunStats
-  run?: SessionOutputRunStats
-}
-
-export interface SessionOutputTotalStats {
-  duration: number
-  tokensCountInput: bigint
-  tokensCountOutput: bigint
-}
-
-export type SessionPreset =
-  | { type: 'General' }
-  | { type: 'Classification', feature: SessionClassificationFeature }
-  | { type: 'Summarization' }
-
-export interface SessionRunConfig {
-  tokensLimit: number
-  samplingConfig?: SamplingConfig
+  modelRun: RunStats
+  run?: RunStats
 }
 
 export type StorageError =
@@ -213,5 +214,16 @@ export type StorageError =
   | { type: 'Storage', message: string }
   | { type: 'MutexPoisoned', message: string }
   | { type: 'LicenseNotActivated' }
+
+export interface Text {
+  original: string
+  parsed: ParsedText
+}
+
+export interface TotalStats {
+  duration: number
+  tokensCountInput: bigint
+  tokensCountOutput: bigint
+}
 
 export declare function version(): string
