@@ -1,41 +1,71 @@
 {
-  "name": "@trymirai/uzu",
-  "version": "0.1.21",
-  "private": false,
-  "main": "uzu.node",
-  "types": "uzu.d.ts",
-  "packageManager": "pnpm@10.14.0",
-  "scripts": {
-    "quick-start": "ts-node examples/quick-start.ts",
-    "chat": "ts-node examples/chat.ts",
-    "summarisation": "ts-node examples/summarisation.ts",
-    "classification": "ts-node examples/classification.ts"
-  },
-  "devDependencies": {
-    "@napi-rs/cli": "3.1.2",
-    "@types/node": "24.2.0",
-    "@types/progress": "2.0.7",
-    "eslint": "9.33.0",
-    "ts-node": "10.9.2",
-    "typescript": "5.9.2",
-    "typescript-eslint": "8.40.0"
-  },
-  "dependencies": {
-    "progress": "2.0.3"
-  },
-  "napi": {
-    "binaryName": "uzu"
-  },
-  "os": [
-    "darwin"
-  ],
-  "cpu": [
-    "arm64"
-  ],
-  "files": [
-    "uzu.node",
-    "uzu.d.ts",
-    "package.json",
-    "README.md"
-  ]
+    "author": "Mirai Tech Inc. <contact@getmirai.co>",
+    "cpu": [
+        "arm64"
+    ],
+    "description": "A high-performance inference engine for AI models",
+    "devDependencies": {
+        "@arethetypeswrong/cli": "^0.17.0",
+        "@swc/core": "^1.3.102",
+        "@swc/jest": "^0.2.29",
+        "@types/jest": "^29.4.0",
+        "@types/node": "^20.17.6",
+        "@typescript-eslint/eslint-plugin": "8.31.1",
+        "@typescript-eslint/parser": "8.31.1",
+        "@typescript-eslint/typescript-estree": "^8.46.0",
+        "eslint": "^9.20.1",
+        "eslint-plugin-prettier": "^5.4.1",
+        "eslint-plugin-unused-imports": "^4.1.4",
+        "jest": "^29.4.0",
+        "prettier": "^3.0.0",
+        "publint": "^0.2.12",
+        "ts-jest": "^29.1.0",
+        "ts-node": "^10.5.0",
+        "tsc-multi": "https://github.com/stainless-api/tsc-multi/releases/download/v1.1.9/tsc-multi.tgz",
+        "tsconfig-paths": "^4.0.0",
+        "tslib": "^2.8.1",
+        "typescript": "5.8.3",
+        "typescript-eslint": "8.31.1"
+    },
+    "exports": {
+        ".": {
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js"
+        },
+        "./*": {
+            "import": "./dist/*.mjs",
+            "require": "./dist/*.js"
+        },
+        "./*.js": {
+            "default": "./dist/*.js"
+        },
+        "./*.mjs": {
+            "default": "./dist/*.mjs"
+        }
+    },
+    "files": [
+        "**/*"
+    ],
+    "license": "MIT",
+    "main": "dist/index.js",
+    "name": "@trymirai/uzu",
+    "os": [
+        "darwin"
+    ],
+    "packageManager": "pnpm@10.18.1",
+    "private": false,
+    "publishConfig": {
+        "access": "public"
+    },
+    "repository": "github:trymirai/uzu-ts",
+    "scripts": {
+        "build": "./scripts/build",
+        "fix": "./scripts/format",
+        "format": "./scripts/format",
+        "lint": "./scripts/lint",
+        "tsn": "ts-node -r tsconfig-paths/register"
+    },
+    "type": "commonjs",
+    "types": "dist/index.d.ts",
+    "version": "0.1.22"
 }
