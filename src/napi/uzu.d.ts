@@ -51,6 +51,7 @@ export interface CloudModel {
   readonly repoId: string
   readonly name: string
   readonly vendor: string
+  readonly outputParserRegex?: string
 }
 
 export interface Config {

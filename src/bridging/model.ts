@@ -14,19 +14,44 @@ export class Model {
     readonly type: ModelType;
     readonly kind: ModelKind;
     readonly name: string;
+    readonly vendor: string;
+    readonly isThinking: boolean;
 
-    private constructor(repoId: string, type: ModelType, kind: ModelKind, name: string) {
+    private constructor(
+        repoId: string,
+        type: ModelType,
+        kind: ModelKind,
+        name: string,
+        vendor: string,
+        isThinking: boolean,
+    ) {
         this.repoId = repoId;
         this.type = type;
         this.kind = kind;
         this.name = name;
+        this.vendor = vendor;
+        this.isThinking = isThinking;
     }
 
     static fromNapiLocalModel(napiLocalModel: NapiLocalModel): Model {
-        return new Model(napiLocalModel.identifier, ModelType.Local, ModelKind.Text, napiLocalModel.name);
+        return new Model(
+            napiLocalModel.identifier,
+            ModelType.Local,
+            ModelKind.Text,
+            napiLocalModel.name,
+            napiLocalModel.vendor,
+            napiLocalModel.outputParserRegex !== undefined,
+        );
     }
 
     static fromNapiCloudModel(napiCloudModel: NapiCloudModel): Model {
-        return new Model(napiCloudModel.repoId, ModelType.Cloud, ModelKind.Text, napiCloudModel.name);
+        return new Model(
+            napiCloudModel.repoId,
+            ModelType.Cloud,
+            ModelKind.Text,
+            napiCloudModel.name,
+            napiCloudModel.vendor,
+            napiCloudModel.outputParserRegex !== undefined,
+        );
     }
 }
