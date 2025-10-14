@@ -94,4 +94,20 @@ export class Engine {
         const napiConfig = config.toNapi();
         return new Session(this.napiEngine.createSession(napiModelId, napiConfig));
     }
+
+    async downloadModel(identifier: string): Promise<void> {
+        await this.napiEngine.downloadModel(identifier);
+    }
+
+    async pauseModel(identifier: string): Promise<void> {
+        await this.napiEngine.pauseModel(identifier);
+    }
+
+    async deleteModel(identifier: string): Promise<void> {
+        await this.napiEngine.deleteModel(identifier);
+    }
+
+    getState(identifier: string) {
+        return this.napiEngine.getState(identifier);
+    }
 }

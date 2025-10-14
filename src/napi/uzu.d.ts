@@ -13,7 +13,7 @@ export declare class Engine {
   pauseModel(identifier: string): Promise<void>
   deleteModel(identifier: string): Promise<void>
   constructor()
-  createSession(modelId: ModelID, config: Config): Session
+  createSession(modelId: ModelID, config: Config): NapiResult<Session>
 }
 
 export declare class ModelDownloadHandle {

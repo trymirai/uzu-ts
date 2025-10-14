@@ -15,6 +15,7 @@ export class Model {
     readonly kind: ModelKind;
     readonly name: string;
     readonly vendor: string;
+    readonly quantization: string | null;
     readonly isThinking: boolean;
 
     private constructor(
@@ -23,6 +24,7 @@ export class Model {
         kind: ModelKind,
         name: string,
         vendor: string,
+        quantization: string | null,
         isThinking: boolean,
     ) {
         this.repoId = repoId;
@@ -30,6 +32,7 @@ export class Model {
         this.kind = kind;
         this.name = name;
         this.vendor = vendor;
+        this.quantization = quantization;
         this.isThinking = isThinking;
     }
 
@@ -40,6 +43,7 @@ export class Model {
             ModelKind.Text,
             napiLocalModel.name,
             napiLocalModel.vendor,
+            napiLocalModel.quantization ?? null,
             napiLocalModel.outputParserRegex !== undefined,
         );
     }
@@ -51,6 +55,7 @@ export class Model {
             ModelKind.Text,
             napiCloudModel.name,
             napiCloudModel.vendor,
+            null,
             napiCloudModel.outputParserRegex !== undefined,
         );
     }
