@@ -2,7 +2,7 @@ import Engine, { Message } from '@trymirai/uzu';
 
 async function main() {
     const output = await Engine.create('API_KEY')
-        .model('Alibaba-Qwen3-0.6B')
+        .model('Qwen/Qwen3-0.6B')
         .download((update) => {
             console.log('Progress:', update.progress);
         })

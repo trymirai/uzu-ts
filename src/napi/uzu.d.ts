@@ -5,15 +5,15 @@ export declare class Engine {
   getCloudModels(): Promise<Array<CloudModel>>
   fetchCloudModels(): Promise<Array<CloudModel>>
   /** Returns a `DownloadHandle` for the given model identifier. */
-  downloadHandle(identifier: string): ModelDownloadHandle
+  downloadHandle(repoId: string): ModelDownloadHandle
   getLocalModels(): Array<LocalModel>
-  getState(identifier: string): ModelDownloadState
+  getState(repoId: string): ModelDownloadState
   activate(apiKey: string): Promise<LicenseStatus>
-  downloadModel(identifier: string): Promise<void>
-  pauseModel(identifier: string): Promise<void>
-  deleteModel(identifier: string): Promise<void>
+  downloadModel(repoId: string): Promise<void>
+  pauseModel(repoId: string): Promise<void>
+  deleteModel(repoId: string): Promise<void>
   constructor()
-  createSession(modelId: ModelID, config: Config): NapiResult<Session>
+  createSession(repoId: string, modelType: ModelType, config: Config): Session
 }
 
 export declare class ModelDownloadHandle {
@@ -89,19 +89,14 @@ export type LicenseStatus =
   | { type: 'HttpError', code: number }
 
 export interface LocalModel {
-  /** Unique identifier of the model in the form `<vendor>-<name>-<precision>`. */
   readonly identifier: string
-  /** Vendor/author of the model (e.g. "Alibaba", "Meta"). */
+  readonly repoId: string
+  readonly family: string
   readonly vendor: string
-  /** Human-readable model name without vendor (e.g. "Qwen2.5-0.5B-Instruct"). */
   readonly name: string
-  /** Precision of the model (e.g. "bfloat16", "float16"). */
-  readonly precision: string
-  /** Quantization type if the model is quantized (e.g. "uint4"). */
+  readonly size: string
   readonly quantization?: string
-  /** Optional regex to parse model output provided by the backend. */
   readonly outputParserRegex?: string
-  /** Current download/installation state. */
   readonly state: ModelDownloadState
 }
 
@@ -130,10 +125,6 @@ export interface ModelDownloadState {
   readonly error?: string
 }
 
-export type ModelID =
-  | { type: 'Local', id: string }
-  | { type: 'Cloud', id: string }
-
 export type ModelStorageError =
   | { type: 'Io', message: string }
   | { type: 'Network', message: string }
@@ -143,6 +134,11 @@ export type ModelStorageError =
   | { type: 'ModelNotFound', identifier: string }
   | { type: 'FileVerificationFailed', message: string }
   | { type: 'Paused' }
+
+export declare const enum ModelType {
+  Local = 0,
+  Cloud = 1
+}
 
 export interface Output {
   text: Text
@@ -212,7 +208,7 @@ export interface StepStats {
 
 export type StorageError =
   | { type: 'ModelNotDownloaded' }
-  | { type: 'UnknownModel', identifier: string }
+  | { type: 'UnknownModel', repoId: string }
   | { type: 'Storage', message: string }
   | { type: 'MutexPoisoned', message: string }
   | { type: 'LicenseNotActivated' }

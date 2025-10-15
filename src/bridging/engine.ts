@@ -1,11 +1,12 @@
 import { EngineError, EngineErrorCode, unwrapOrThrow } from '../error';
 import { EngineInteractor } from '../interactors/engineInteractor';
-import { Engine as NapiEngine, ModelID as NapiModelID } from '../napi/uzu';
+import { Engine as NapiEngine } from '../napi/uzu';
 import { readEnv } from '../utilities/env';
 import { Config } from './config';
 import { DownloadHandle } from './downloadHandle';
 import { LicenseStatus, licenseStatusFromNapiLicenseStatus } from './licenseStatus';
-import { Model, ModelKind, ModelType } from './model';
+import { Model, ModelKind } from './model';
+import { ModelType, modelTypeToNapi } from './modelType';
 import { Session } from './session';
 
 export class Engine {
@@ -77,37 +78,28 @@ export class Engine {
         return new DownloadHandle(this.napiEngine.downloadHandle(model.repoId));
     }
 
-    private static napiModelId(model: Model): NapiModelID {
-        switch (model.type) {
-            case ModelType.Local:
-                return { type: 'Local', id: model.repoId };
-            case ModelType.Cloud:
-                return { type: 'Cloud', id: model.repoId };
-        }
-    }
-
     session(model: Model, config: Config = Config.default()): Session {
         if (model.kind !== ModelKind.Text) {
             throw new EngineError(EngineErrorCode.ExpectedTextModel);
         }
-        const napiModelId = Engine.napiModelId(model);
+        const napiModelType = modelTypeToNapi(model.type);
         const napiConfig = config.toNapi();
-        return new Session(this.napiEngine.createSession(napiModelId, napiConfig));
+        return new Session(this.napiEngine.createSession(model.repoId, napiModelType, napiConfig));
     }
 
-    async downloadModel(identifier: string): Promise<void> {
-        await this.napiEngine.downloadModel(identifier);
+    async downloadModel(repoId: string): Promise<void> {
+        await this.napiEngine.downloadModel(repoId);
     }
 
-    async pauseModel(identifier: string): Promise<void> {
-        await this.napiEngine.pauseModel(identifier);
+    async pauseModel(repoId: string): Promise<void> {
+        await this.napiEngine.pauseModel(repoId);
     }
 
-    async deleteModel(identifier: string): Promise<void> {
-        await this.napiEngine.deleteModel(identifier);
+    async deleteModel(repoId: string): Promise<void> {
+        await this.napiEngine.deleteModel(repoId);
     }
 
-    getState(identifier: string) {
-        return this.napiEngine.getState(identifier);
+    getState(repoId: string) {
+        return this.napiEngine.getState(repoId);
     }
 }

@@ -1,9 +1,5 @@
 import { CloudModel as NapiCloudModel, LocalModel as NapiLocalModel } from '../napi/uzu';
-
-export enum ModelType {
-    Local = 'local',
-    Cloud = 'cloud',
-}
+import { ModelType } from './modelType';
 
 export enum ModelKind {
     Text = 'text',
@@ -38,7 +34,7 @@ export class Model {
 
     static fromNapiLocalModel(napiLocalModel: NapiLocalModel): Model {
         return new Model(
-            napiLocalModel.identifier,
+            napiLocalModel.repoId,
             ModelType.Local,
             ModelKind.Text,
             napiLocalModel.name,

@@ -4,7 +4,7 @@ async function interactorsExample() {
     // snippet:quick-start
     const output = await Engine
         .create('API_KEY')
-        .model('Alibaba-Qwen3-0.6B')
+        .model('Qwen/Qwen3-0.6B')
         .reply('Tell me a short, funny story about a robot');
     // endsnippet:quick-start
 
@@ -17,7 +17,7 @@ async function manualGeneralExample() {
     // endsnippet:engine-create
 
     // snippet:model-choose
-    const model = await engine.model('Alibaba-Qwen3-0.6B');
+    const model = await engine.model('Qwen/Qwen3-0.6B');
     // endsnippet:model-choose
 
     // snippet:model-download
@@ -69,7 +69,7 @@ async function manualGeneralExample() {
 
 async function manualSummarizationExample() {
     const engine = await Engine.load('API_KEY');
-    const model = await engine.model('Alibaba-Qwen3-0.6B');
+    const model = await engine.model('Qwen/Qwen3-0.6B');
     if (model.type === ModelType.Local) {
         const downloadHandle = engine.downloadHandle(model);
         const state = await downloadHandle.state();
@@ -116,7 +116,7 @@ async function manualSummarizationExample() {
 
 async function manualClassificationExample() {
     const engine = await Engine.load('API_KEY');
-    const model = await engine.model('Alibaba-Qwen3-0.6B');
+    const model = await engine.model('Qwen/Qwen3-0.6B');
     if (model.type === ModelType.Local) {
         const downloadHandle = engine.downloadHandle(model);
         const state = await downloadHandle.state();

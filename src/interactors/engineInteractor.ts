@@ -1,5 +1,6 @@
 import { Engine } from '../bridging/engine';
-import { ModelKind, ModelType } from '../bridging/model';
+import { ModelKind } from '../bridging/model';
+import { ModelType } from '../bridging/modelType';
 import { Interactor, InteractorEntity } from './interactor';
 import { ModelInteractor } from './modelInteractor';
 import { ModelsInteractor } from './modelsInteractor';
