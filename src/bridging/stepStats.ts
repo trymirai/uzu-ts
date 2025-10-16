@@ -6,6 +6,7 @@ export class StepStats {
     readonly suffixLength: number;
     readonly tokensCount: number;
     readonly tokensPerSecond: number;
+    readonly processedTokensPerSecond: number;
     readonly modelRun: RunStats;
     readonly run: RunStats | null;
 
@@ -14,6 +15,7 @@ export class StepStats {
         suffixLength: number,
         tokensCount: number,
         tokensPerSecond: number,
+        processedTokensPerSecond: number,
         modelRun: RunStats,
         run: RunStats | null,
     ) {
@@ -21,6 +23,7 @@ export class StepStats {
         this.suffixLength = suffixLength;
         this.tokensCount = tokensCount;
         this.tokensPerSecond = tokensPerSecond;
+        this.processedTokensPerSecond = processedTokensPerSecond;
         this.modelRun = modelRun;
         this.run = run;
     }
@@ -30,8 +33,17 @@ export class StepStats {
         const suffixLength = Number(napiEntity.suffixLength);
         const tokensCount = Number(napiEntity.tokensCount);
         const tokensPerSecond = napiEntity.tokensPerSecond;
+        const processedTokensPerSecond = napiEntity.processedTokensPerSecond;
         const modelRun = RunStats.fromNapi(napiEntity.modelRun);
         const run = napiEntity.run ? RunStats.fromNapi(napiEntity.run) : null;
-        return new StepStats(duration, suffixLength, tokensCount, tokensPerSecond, modelRun, run);
+        return new StepStats(
+            duration,
+            suffixLength,
+            tokensCount,
+            tokensPerSecond,
+            processedTokensPerSecond,
+            modelRun,
+            run,
+        );
     }
 }

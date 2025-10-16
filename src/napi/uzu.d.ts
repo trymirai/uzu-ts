@@ -202,6 +202,7 @@ export interface StepStats {
   suffixLength: bigint
   tokensCount: bigint
   tokensPerSecond: number
+  processedTokensPerSecond: number
   modelRun: RunStats
   run?: RunStats
 }
