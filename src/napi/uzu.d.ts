@@ -111,7 +111,8 @@ export declare const enum ModelDownloadPhase {
   Downloading = 1,
   Paused = 2,
   Downloaded = 3,
-  Error = 4
+  Locked = 4,
+  Error = 5
 }
 
 export interface ModelDownloadState {
