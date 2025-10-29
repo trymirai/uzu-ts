@@ -9,6 +9,7 @@ export enum DownloadPhase {
     Downloading = 'Downloading',
     Paused = 'Paused',
     Downloaded = 'Downloaded',
+    Locked = 'Locked',
     Error = 'Error',
 }
 
@@ -41,6 +42,8 @@ export class DownloadState {
             case 3:
                 return DownloadPhase.Downloaded;
             case 4:
+                return DownloadPhase.Locked;
+            case 5:
                 return DownloadPhase.Error;
             default:
                 throw new EngineError(EngineErrorCode.UnexpectedDownloadPhase);
