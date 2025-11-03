@@ -25,7 +25,7 @@ Add the `uzu` dependency to your project's `package.json`:
 
 ```json
 "dependencies": {
-    "@trymirai/uzu": "0.1.39"
+    "@trymirai/uzu": "0.1.40"
 }
 ```
 
@@ -34,7 +34,7 @@ Set up your project through [Platform](https://platform.trymirai.com) and obtain
 ```ts
 const output = await Engine
     .create('API_KEY')
-    .model('Qwen/Qwen3-0.6B')
+    .chatModel('Qwen/Qwen3-0.6B')
     .reply('Tell me a short, funny story about a robot');
 ```
 
@@ -59,7 +59,7 @@ import Engine, { Message } from '@trymirai/uzu';
 
 async function main() {
     const output = await Engine.create('API_KEY')
-        .model('Qwen/Qwen3-0.6B')
+        .chatModel('Qwen/Qwen3-0.6B')
         .download((update) => {
             console.log('Progress:', update.progress);
         })
@@ -93,7 +93,7 @@ async function main() {
     const prompt = `Text is: "${textToSummarize}". Write only summary itself.`;
 
     const output = await Engine.create('API_KEY')
-        .model('Qwen/Qwen3-0.6B')
+        .chatModel('Qwen/Qwen3-0.6B')
         .download((update) => {
             console.log('Progress:', update.progress);
         })
@@ -142,7 +142,7 @@ async function main() {
         "Answer with one word. Don't add a dot at the end.";
 
     const output = await Engine.create('API_KEY')
-        .model('Qwen/Qwen3-0.6B')
+        .chatModel('Qwen/Qwen3-0.6B')
         .download((update) => {
             console.log('Progress:', update.progress);
         })

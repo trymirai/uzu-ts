@@ -16,7 +16,7 @@ async function main() {
         "Answer with one word. Don't add a dot at the end.";
 
     const output = await Engine.create('API_KEY')
-        .model('Qwen/Qwen3-0.6B')
+        .chatModel('Qwen/Qwen3-0.6B')
         .download((update) => {
             console.log('Progress:', update.progress);
         })

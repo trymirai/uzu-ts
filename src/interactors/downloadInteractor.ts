@@ -1,13 +1,13 @@
 import { DownloadHandle } from '../bridging/downloadHandle';
 import { DownloadProgressUpdate } from '../bridging/downloadProgressUpdate';
+import { ChatModelInteractor } from './chatModelInteractor';
 import { Interactor, InteractorEntity } from './interactor';
-import { ModelInteractor } from './modelInteractor';
 
 export class DownloadInteractor implements Interactor<DownloadHandle> {
-    readonly modelInteractor: ModelInteractor;
+    readonly modelInteractor: ChatModelInteractor;
     readonly entity: InteractorEntity<DownloadHandle>;
 
-    constructor(modelInteractor: ModelInteractor, handle: InteractorEntity<DownloadHandle>) {
+    constructor(modelInteractor: ChatModelInteractor, handle: InteractorEntity<DownloadHandle>) {
         this.modelInteractor = modelInteractor;
         this.entity = handle;
     }

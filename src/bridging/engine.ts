@@ -2,12 +2,14 @@ import { EngineError, EngineErrorCode, unwrapOrThrow } from '../error';
 import { EngineInteractor } from '../interactors/engineInteractor';
 import { Engine as NapiEngine } from '../napi/uzu';
 import { readEnv } from '../utilities/env';
+import { ChatModel } from './chatModel';
+import { ChatSession } from './chatSession';
 import { Config } from './config';
 import { DownloadHandle } from './downloadHandle';
+import { DownloadProgressUpdate } from './downloadProgressUpdate';
+import { DownloadPhase, DownloadState } from './downloadState';
 import { LicenseStatus, licenseStatusFromNapiLicenseStatus } from './licenseStatus';
-import { Model, ModelKind } from './model';
-import { ModelType, modelTypeToNapi } from './modelType';
-import { Session } from './session';
+import { ModelType, modelTypeToNapiModelType } from './modelType';
 
 export class Engine {
     private readonly napiEngine: NapiEngine;
@@ -44,62 +46,60 @@ export class Engine {
         return new EngineInteractor(enginePromise);
     }
 
-    async models(types: ModelType[] | null = null, kinds: ModelKind[] | null = null): Promise<Model[]> {
-        function isTypeAllowed(type: ModelType): boolean {
-            return types === null || types.includes(type);
-        }
+    getDownloadState(repoId: string): DownloadState {
+        let downloadState = this.napiEngine.getModelDownloadState(repoId);
+        return DownloadState.fromNapi(downloadState);
+    }
 
-        function isKindAllowed(kind: ModelKind): boolean {
-            return kinds === null || kinds.includes(kind);
-        }
+    downloadHandle(repoId: string): DownloadHandle {
+        return new DownloadHandle(this.napiEngine.createModelDownloadHandle(repoId));
+    }
 
-        let results: Model[] = [];
-        if (isTypeAllowed(ModelType.Local) && isKindAllowed(ModelKind.Text)) {
-            const napiLocalModels = this.napiEngine.getLocalModels();
-            results.push(...napiLocalModels.map(Model.fromNapiLocalModel));
-        }
-        if (isTypeAllowed(ModelType.Cloud) && isKindAllowed(ModelKind.Text)) {
-            const napiCloudModels = await this.napiEngine.getCloudModels();
-            results.push(...napiCloudModels.map(Model.fromNapiCloudModel));
-        }
+    async chatModels(types: ModelType[] | null = null): Promise<ChatModel[]> {
+        let typesToFilter: ModelType[] = types ?? [ModelType.Local, ModelType.Cloud];
+        let napiModelTypes = typesToFilter.map(modelTypeToNapiModelType);
+        let napiChatModels = await this.napiEngine.getChatModels(napiModelTypes);
+        let results: ChatModel[] = napiChatModels.map(ChatModel.fromNapiChatModel);
         return results;
     }
 
-    async model(repoId: string): Promise<Model> {
-        const models = await this.models();
-        const model = models.find((model) => model.repoId === repoId);
-        return unwrapOrThrow(model, EngineErrorCode.ModelNotFound);
+    async chatModel(repoId: string, types: ModelType[] | null = null): Promise<ChatModel> {
+        const chatModels = await this.chatModels(types);
+        const chatModel = chatModels.find((model) => model.repoId === repoId);
+        return unwrapOrThrow(chatModel, EngineErrorCode.ModelNotFound);
     }
 
-    downloadHandle(model: Model): DownloadHandle {
-        if (model.type !== ModelType.Local) {
-            throw new EngineError(EngineErrorCode.ExpectedLocalModel);
+    async downloadChatModel(
+        chatModel: ChatModel,
+        progress: (progressUpdate: DownloadProgressUpdate) => void = () => {},
+    ): Promise<DownloadState> {
+        switch (chatModel.type) {
+            case ModelType.Local:
+                break;
+            case ModelType.Cloud:
+                throw new EngineError(EngineErrorCode.UnexpectedModelType);
         }
-        return new DownloadHandle(this.napiEngine.downloadHandle(model.repoId));
+
+        const downloadHandle = this.downloadHandle(chatModel.repoId);
+        const state = await downloadHandle.state();
+        switch (state.phase) {
+            case DownloadPhase.Downloaded:
+                break;
+            default:
+                await downloadHandle.download();
+                for await (const progressUpdate of downloadHandle.progressUpdate()) {
+                    progress(progressUpdate);
+                }
+                break;
+        }
+
+        const finalState = await downloadHandle.state();
+        return finalState;
     }
 
-    session(model: Model, config: Config = Config.default()): Session {
-        if (model.kind !== ModelKind.Text) {
-            throw new EngineError(EngineErrorCode.ExpectedTextModel);
-        }
-        const napiModelType = modelTypeToNapi(model.type);
+    chatSession(chatModel: ChatModel, config: Config = Config.default()): ChatSession {
+        const napiChatModel = chatModel.toNapi();
         const napiConfig = config.toNapi();
-        return new Session(this.napiEngine.createSession(model.repoId, napiModelType, napiConfig));
-    }
-
-    async downloadModel(repoId: string): Promise<void> {
-        await this.napiEngine.downloadModel(repoId);
-    }
-
-    async pauseModel(repoId: string): Promise<void> {
-        await this.napiEngine.pauseModel(repoId);
-    }
-
-    async deleteModel(repoId: string): Promise<void> {
-        await this.napiEngine.deleteModel(repoId);
-    }
-
-    getState(repoId: string) {
-        return this.napiEngine.getState(repoId);
+        return new ChatSession(this.napiEngine.createChatSession(napiChatModel, napiConfig));
     }
 }

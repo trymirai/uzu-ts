@@ -1,23 +1,16 @@
 import { Engine } from '../bridging/engine';
-import { ModelKind } from '../bridging/model';
 import { ModelType } from '../bridging/modelType';
+import { ChatModelInteractor } from './chatModelInteractor';
+import { ChatModelsInteractor } from './chatModelsInteractor';
 import { Interactor, InteractorEntity } from './interactor';
-import { ModelInteractor } from './modelInteractor';
-import { ModelsInteractor } from './modelsInteractor';
 
 export class EngineInteractor implements Interactor<Engine> {
     readonly entity: InteractorEntity<Engine>;
     readonly modelTypeFilter: ModelType[] | null;
-    readonly modelKindFilter: ModelKind[] | null;
 
-    constructor(
-        engine: InteractorEntity<Engine>,
-        modelTypeFilter: ModelType[] | null = null,
-        modelKindFilter: ModelKind[] | null = null,
-    ) {
+    constructor(engine: InteractorEntity<Engine>, modelTypeFilter: ModelType[] | null = null) {
         this.entity = engine;
         this.modelTypeFilter = modelTypeFilter;
-        this.modelKindFilter = modelKindFilter;
     }
 
     async finalize(): Promise<Engine> {
@@ -27,23 +20,19 @@ export class EngineInteractor implements Interactor<Engine> {
     /* Models */
 
     filterTypes(types: ModelType[] | null): EngineInteractor {
-        return new EngineInteractor(this.entity, types, this.modelKindFilter);
+        return new EngineInteractor(this.entity, types);
     }
 
-    filterKinds(kinds: ModelKind[] | null): EngineInteractor {
-        return new EngineInteractor(this.entity, this.modelTypeFilter, kinds);
-    }
-
-    models(): ModelsInteractor {
+    chatModels(): ChatModelsInteractor {
         const modelsPromise = (async () => {
             const engine = await this.finalize();
-            return await engine.models(this.modelTypeFilter, this.modelKindFilter);
+            return await engine.chatModels(this.modelTypeFilter);
         })();
-        return new ModelsInteractor(this, modelsPromise);
+        return new ChatModelsInteractor(this, modelsPromise);
     }
 
-    model(repoId: string): ModelInteractor {
-        const models = this.models();
+    chatModel(repoId: string): ChatModelInteractor {
+        const models = this.chatModels();
         return models.get(repoId);
     }
 }

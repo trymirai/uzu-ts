@@ -3,7 +3,7 @@ import Engine from '@trymirai/uzu';
 async function main() {
     const output = await Engine
         .create('API_KEY')
-        .model('Qwen/Qwen3-0.6B')
+        .chatModel('Qwen/Qwen3-0.6B')
         .download((update) => {
             console.log('Progress:', update.progress);
         })

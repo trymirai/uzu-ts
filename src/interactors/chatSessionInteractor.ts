@@ -1,48 +1,52 @@
+import { ChatSession } from '../bridging/chatSession';
 import { Input } from '../bridging/input';
 import { Message } from '../bridging/message';
 import { Output } from '../bridging/output';
 import { RunConfig } from '../bridging/runConfig';
 import { SamplingMethod } from '../bridging/samplingMethod';
 import { SamplingPolicy } from '../bridging/samplingPolicy';
-import { Session } from '../bridging/session';
+import { ChatModelInteractor } from './chatModelInteractor';
 import { Interactor, InteractorEntity } from './interactor';
-import { ModelInteractor } from './modelInteractor';
 
-export class SessionInteractor implements Interactor<Session> {
-    readonly modelInteractor: ModelInteractor;
-    readonly entity: InteractorEntity<Session>;
+export class ChatSessionInteractor implements Interactor<ChatSession> {
+    readonly modelInteractor: ChatModelInteractor;
+    readonly entity: InteractorEntity<ChatSession>;
     readonly config: RunConfig;
 
-    constructor(modelInteractor: ModelInteractor, session: InteractorEntity<Session>, config: RunConfig) {
+    constructor(
+        modelInteractor: ChatModelInteractor,
+        session: InteractorEntity<ChatSession>,
+        config: RunConfig,
+    ) {
         this.modelInteractor = modelInteractor;
         this.entity = session;
         this.config = config;
     }
 
-    async finalize(): Promise<Session> {
+    async finalize(): Promise<ChatSession> {
         return await this.entity;
     }
 
     /* Config */
 
-    tokensLimit(tokensLimit: number): SessionInteractor {
+    tokensLimit(tokensLimit: number): ChatSessionInteractor {
         const config = this.config.withTokensLimit(tokensLimit);
-        return new SessionInteractor(this.modelInteractor, this.entity, config);
+        return new ChatSessionInteractor(this.modelInteractor, this.entity, config);
     }
 
-    enableThinking(enableThinking: boolean): SessionInteractor {
+    enableThinking(enableThinking: boolean): ChatSessionInteractor {
         const config = this.config.withEnableThinking(enableThinking);
-        return new SessionInteractor(this.modelInteractor, this.entity, config);
+        return new ChatSessionInteractor(this.modelInteractor, this.entity, config);
     }
 
-    samplingPolicy(samplingPolicy: SamplingPolicy): SessionInteractor {
+    samplingPolicy(samplingPolicy: SamplingPolicy): ChatSessionInteractor {
         const config = this.config.withSamplingPolicy(samplingPolicy);
-        return new SessionInteractor(this.modelInteractor, this.entity, config);
+        return new ChatSessionInteractor(this.modelInteractor, this.entity, config);
     }
 
-    samplingMethod(samplingMethod: SamplingMethod): SessionInteractor {
+    samplingMethod(samplingMethod: SamplingMethod): ChatSessionInteractor {
         const config = this.config.withSamplingPolicy(SamplingPolicy.custom(samplingMethod));
-        return new SessionInteractor(this.modelInteractor, this.entity, config);
+        return new ChatSessionInteractor(this.modelInteractor, this.entity, config);
     }
 
     /* Run */

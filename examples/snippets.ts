@@ -1,10 +1,10 @@
-import Engine, { ClassificationFeature, Config, DownloadPhase, Input, Message, ModelType, Preset, RunConfig, SamplingMethod, SamplingPolicy } from '@trymirai/uzu';
+import Engine, { ClassificationFeature, Config, Input, Message, Preset, RunConfig, SamplingMethod, SamplingPolicy } from '@trymirai/uzu';
 
 async function interactorsExample() {
     // snippet:quick-start
     const output = await Engine
         .create('API_KEY')
-        .model('Qwen/Qwen3-0.6B')
+        .chatModel('Qwen/Qwen3-0.6B')
         .reply('Tell me a short, funny story about a robot');
     // endsnippet:quick-start
 
@@ -17,24 +17,13 @@ async function manualGeneralExample() {
     // endsnippet:engine-create
 
     // snippet:model-choose
-    const model = await engine.model('Qwen/Qwen3-0.6B');
+    const model = await engine.chatModel('Qwen/Qwen3-0.6B');
     // endsnippet:model-choose
 
     // snippet:model-download
-    if (model.type === ModelType.Local) {
-        const downloadHandle = engine.downloadHandle(model);
-        const state = await downloadHandle.state();
-        switch (state.phase) {
-            case DownloadPhase.Downloaded:
-                break;
-            default:
-                downloadHandle.download();
-                for await (const progressUpdate of downloadHandle.progressUpdate()) {
-                    console.log('Progress:', progressUpdate.progress);
-                }
-                break;
-        }
-    }
+    await engine.downloadChatModel(model, (update) => {
+        console.log('Progress:', update.progress);
+    });
     // endsnippet:model-download
 
     // snippet:session-create-general
@@ -42,7 +31,7 @@ async function manualGeneralExample() {
         .default()
         .withPreset(Preset.general());
 
-    const session = engine.session(model, config);
+    const session = engine.chatSession(model, config);
     // endsnippet:session-create-general
 
     // snippet:session-input-general
@@ -69,28 +58,17 @@ async function manualGeneralExample() {
 
 async function manualSummarizationExample() {
     const engine = await Engine.load('API_KEY');
-    const model = await engine.model('Qwen/Qwen3-0.6B');
-    if (model.type === ModelType.Local) {
-        const downloadHandle = engine.downloadHandle(model);
-        const state = await downloadHandle.state();
-        switch (state.phase) {
-            case DownloadPhase.Downloaded:
-                break;
-            default:
-                downloadHandle.download();
-                for await (const progressUpdate of downloadHandle.progressUpdate()) {
-                    console.log('Progress:', progressUpdate.progress);
-                }
-                break;
-        }
-    }
+    const model = await engine.chatModel('Qwen/Qwen3-0.6B');
+    await engine.downloadChatModel(model, (update) => {
+        console.log('Progress:', update.progress);
+    });
 
     // snippet:session-create-summarization
     const config = Config
         .default()
         .withPreset(Preset.summarization());
 
-    const session = engine.session(model, config);
+    const session = engine.chatSession(model, config);
     // endsnippet:session-create-summarization
 
     // snippet:session-input-summarization
@@ -116,21 +94,10 @@ async function manualSummarizationExample() {
 
 async function manualClassificationExample() {
     const engine = await Engine.load('API_KEY');
-    const model = await engine.model('Qwen/Qwen3-0.6B');
-    if (model.type === ModelType.Local) {
-        const downloadHandle = engine.downloadHandle(model);
-        const state = await downloadHandle.state();
-        switch (state.phase) {
-            case DownloadPhase.Downloaded:
-                break;
-            default:
-                downloadHandle.download();
-                for await (const progressUpdate of downloadHandle.progressUpdate()) {
-                    console.log('Progress:', progressUpdate.progress);
-                }
-                break;
-        }
-    }
+    const model = await engine.chatModel('Qwen/Qwen3-0.6B');
+    await engine.downloadChatModel(model, (update) => {
+        console.log('Progress:', update.progress);
+    });
 
     // snippet:session-create-classification
     const feature = new ClassificationFeature('sentiment', [
@@ -145,7 +112,7 @@ async function manualClassificationExample() {
         .default()
         .withPreset(Preset.classification(feature));
 
-    const session = engine.session(model, config);
+    const session = engine.chatSession(model, config);
     // endsnippet:session-create-classification
 
     // snippet:session-input-classification

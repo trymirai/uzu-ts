@@ -21,20 +21,19 @@ try {
 
 // Re-export all runtime exports as named exports  
 export const {
+  ChatSession,
   Engine,
   ModelDownloadHandle,
   ProgressStream,
   ProgressUpdate,
-  Session,
   FinishReason,
   ModelDownloadPhase,
   ModelType,
   Role,
   version,
+  ChatModel,
   ClassificationFeature,
-  CloudModel,
   Config,
-  LocalModel,
   Message,
   ModelDownloadState,
   Output,
