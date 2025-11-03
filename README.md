@@ -6,7 +6,8 @@
 
 <a href="https://artifacts.trymirai.com/social/about_us.mp3"><img src="https://img.shields.io/badge/Listen-Podcast-red" alt="Listen to our podcast"></a>
 <a href="https://docsend.com/v/76bpr/mirai2025"><img src="https://img.shields.io/badge/View-Deck-red" alt="View our deck"></a>
-<a href="mailto:alexey@getmirai.co,dima@getmirai.co,aleksei@getmirai.co?subject=Interested%20in%20Mirai"><img src="https://img.shields.io/badge/Send-Email-green" alt="Contact us"></a>
+<a href="https://discord.gg/gUhyn6Rb7x"><img src="https://img.shields.io/discord/1377764166764462120?label=Discord" alt="Discord"></a>
+<a href="mailto:contact@getmirai.co?subject=Interested%20in%20Mirai"><img src="https://img.shields.io/badge/Send-Email-green" alt="Contact us"></a>
 <a href="https://docs.trymirai.com/app-integration/overview"><img src="https://img.shields.io/badge/Read-Docs-blue" alt="Read docs"></a>
 [![npm (scoped)](https://img.shields.io/npm/v/%40trymirai%2Fuzu)](https://www.npmjs.com/package/@trymirai/uzu)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
@@ -25,7 +26,7 @@ Add the `uzu` dependency to your project's `package.json`:
 
 ```json
 "dependencies": {
-    "@trymirai/uzu": "0.1.40"
+    "@trymirai/uzu": "0.1.42"
 }
 ```
 
@@ -48,6 +49,7 @@ Place the `API_KEY` you obtained earlier in the corresponding example file, and 
 pnpm run tsn examples/chat.ts
 pnpm run tsn examples/summarization.ts
 pnpm run tsn examples/classification.ts
+pnpm run tsn examples/cloud.ts
 ```
 
 ### Chat
@@ -163,6 +165,28 @@ main().catch((error) => {
 ```
 
 You can view the stats to see that the answer will be ready immediately after the prefill step, and actual generation won’t even start due to speculative decoding, which significantly improves generation speed.
+
+### Cloud
+
+Sometimes you want to create a complex pipeline where some requests are processed on-device and the more complex ones are handled in the cloud using a larger model. With `uzu`, you can do this easily: just choose the cloud model you want to use and perform all requests through the same API:
+
+```ts
+import Engine from '@trymirai/uzu';
+
+async function main() {
+    const output = await Engine
+        .create('API_KEY')
+        .chatModel('openai/gpt-oss-120b')
+        .reply('How LLMs work');
+    console.log(output.text.original);
+}
+
+main().catch((error) => {
+    console.error(error);
+});
+```
+
+> To get access to cloud inference, please contact us via [Discord](https://discord.gg/gUhyn6Rb7x) or [email](mailto:contact@getmirai.co).
 
 ## License
 
