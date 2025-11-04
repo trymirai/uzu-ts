@@ -26,7 +26,7 @@ Add the `uzu` dependency to your project's `package.json`:
 
 ```json
 "dependencies": {
-    "@trymirai/uzu": "0.1.43"
+    "@trymirai/uzu": "0.1.44"
 }
 ```
 
@@ -186,7 +186,9 @@ main().catch((error) => {
 });
 ```
 
-> To get access to cloud inference, please contact us via [Discord](https://discord.gg/gUhyn6Rb7x) or [email](mailto:contact@getmirai.co).
+## Troubleshooting
+
+If you experience any problems, please contact us via [Discord](https://discord.com/invite/trymirai) or [email](mailto:contact@getmirai.co).
 
 ## License
 
