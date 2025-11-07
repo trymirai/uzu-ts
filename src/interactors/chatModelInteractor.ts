@@ -1,6 +1,7 @@
 import { ChatModel } from '../bridging/chatModel';
 import { Config } from '../bridging/config';
 import { ContextLength } from '../bridging/contextLength';
+import { ContextMode } from '../bridging/contextMode';
 import { DownloadProgressUpdate } from '../bridging/downloadProgressUpdate';
 import { DownloadPhase } from '../bridging/downloadState';
 import { Message } from '../bridging/message';
@@ -69,13 +70,18 @@ export class ChatModelInteractor implements Interactor<ChatModel> {
         return new ChatModelInteractor(this.modelsInteractor, this.entity, config);
     }
 
-    prefillStepSize(prefillStepSize: PrefillStepSize): ChatModelInteractor {
-        const config = this.config.withPrefillStepSize(prefillStepSize);
+    contextMode(contextMode: ContextMode): ChatModelInteractor {
+        const config = this.config.withContextMode(contextMode);
         return new ChatModelInteractor(this.modelsInteractor, this.entity, config);
     }
 
     contextLength(contextLength: ContextLength): ChatModelInteractor {
         const config = this.config.withContextLength(contextLength);
+        return new ChatModelInteractor(this.modelsInteractor, this.entity, config);
+    }
+
+    prefillStepSize(prefillStepSize: PrefillStepSize): ChatModelInteractor {
+        const config = this.config.withPrefillStepSize(prefillStepSize);
         return new ChatModelInteractor(this.modelsInteractor, this.entity, config);
     }
 

@@ -26,7 +26,7 @@ Add the `uzu` dependency to your project's `package.json`:
 
 ```json
 "dependencies": {
-    "@trymirai/uzu": "0.1.44"
+    "@trymirai/uzu": "0.1.45"
 }
 ```
 
@@ -47,6 +47,8 @@ Place the `API_KEY` you obtained earlier in the corresponding example file, and 
 
 ```bash
 pnpm run tsn examples/chat.ts
+pnpm run tsn examples/chatDynamicContext.ts
+pnpm run tsn examples/chatStaticContext.ts
 pnpm run tsn examples/summarization.ts
 pnpm run tsn examples/classification.ts
 pnpm run tsn examples/cloud.ts
@@ -75,6 +77,103 @@ async function main() {
             },
         );
     console.log(output.text.original);
+}
+
+main().catch((error) => {
+    console.error(error);
+});
+```
+
+### Chat with dynamic context
+
+In this example, we will use the dynamic `ContextMode`, which automatically maintains a continuous conversation history instead of resetting the context with each new input. Every new message is added to the ongoing chat, allowing the model to remember what has already been said and respond with full context.
+
+```ts
+import Engine, { Config, ContextMode, Input, RunConfig } from '@trymirai/uzu';
+
+async function main() {
+    const engine = await Engine.load('API_KEY');
+
+    const model = await engine.chatModel('Qwen/Qwen3-0.6B');
+    await engine.downloadChatModel(model, (update) => {
+        console.log('Progress:', update.progress);
+    });
+
+    const config = Config
+        .default()
+        .withContextMode(ContextMode.dynamic());
+    const session = engine.chatSession(model, config);
+
+    const requests = [
+        'Tell about London',
+        'Compare with New York',
+        'Compare the population of the two',
+    ];
+    const runConfig = RunConfig
+        .default()
+        .withTokensLimit(1024)
+        .withEnableThinking(false);
+
+    for (const request of requests) {
+        const output = session.run(Input.text(request), runConfig, (partialOutput) => {
+            return true;
+        });
+
+        console.log('Request:', request);
+        console.log('Response:', output.text.original.trim());
+        console.log('-------------------------');
+    }
+}
+
+main().catch((error) => {
+    console.error(error);
+});
+```
+
+### Chat with static context
+
+In this example, we will use the static `ContextMode`, which begins with an initial list of messages defining the base context of the conversation, such as predefined instructions. Unlike dynamic mode, this context is fixed and does not evolve with new messages. Each inference request is processed independently, using only the initial context and the latest input, without retaining any previous conversation history.
+
+```ts
+import Engine, { Config, ContextMode, Input, Message, RunConfig } from '@trymirai/uzu';
+
+function listToString(list: string[]): string {
+    return "[" + list.map((item) => `"${item}"`).join(", ") + "]";
+}
+
+async function main() {
+    const engine = await Engine.load('API_KEY');
+
+    const model = await engine.chatModel('Qwen/Qwen3-0.6B');
+    await engine.downloadChatModel(model, (update) => {
+        console.log('Progress:', update.progress);
+    });
+
+    const instructions =
+        `Your task is to name countries for each city in the given list.
+        For example for ${listToString(["Helsenki", "Stockholm", "Barcelona"])} the answer should be ${listToString(["Finland", "Sweden", "Spain"])}.`;
+    const config = Config
+        .default()
+        .withContextMode(ContextMode.static(Input.messages([Message.system(instructions)])));
+    const session = engine.chatSession(model, config);
+
+    const requests = [
+        listToString(["New York", "London", "Lisbon", "Paris", "Berlin"]),
+        listToString(["Bangkok", "Tokyo", "Seoul", "Beijing", "Delhi"]),
+    ];
+    const runConfig = RunConfig
+        .default()
+        .withEnableThinking(false);
+
+    for (const request of requests) {
+        const output = session.run(Input.text(request), runConfig, (partialOutput) => {
+            return true;
+        });
+
+        console.log('Request:', request);
+        console.log('Response:', output.text.original.trim());
+        console.log('-------------------------');
+    }
 }
 
 main().catch((error) => {

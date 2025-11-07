@@ -54,8 +54,9 @@ export interface ClassificationFeature {
 
 export interface Config {
   preset: Preset
-  prefillStepSize: PrefillStepSize
+  contextMode: ContextMode
   contextLength: ContextLength
+  prefillStepSize: PrefillStepSize
   samplingSeed: SamplingSeed
 }
 
@@ -63,6 +64,11 @@ export type ContextLength =
   | { type: 'Default' }
   | { type: 'Maximal' }
   | { type: 'Custom', length: number }
+
+export type ContextMode =
+  | { type: 'None' }
+  | { type: 'Static', input: Input }
+  | { type: 'Dynamic' }
 
 export declare const enum FinishReason {
   Stop = 0,

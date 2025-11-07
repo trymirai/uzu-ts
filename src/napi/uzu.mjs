@@ -45,6 +45,7 @@ export const {
   Text,
   TotalStats,
   ContextLength,
+  ContextMode,
   Input,
   LicenseStatus,
   ModelStorageError,

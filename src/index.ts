@@ -3,6 +3,7 @@ export { ChatSession } from './bridging/chatSession';
 export { ClassificationFeature } from './bridging/classificationFeature';
 export { Config } from './bridging/config';
 export { ContextLength } from './bridging/contextLength';
+export { ContextMode } from './bridging/contextMode';
 export { DownloadHandle } from './bridging/downloadHandle';
 export { DownloadProgressUpdate } from './bridging/downloadProgressUpdate';
 export { DownloadPhase, DownloadState } from './bridging/downloadState';
