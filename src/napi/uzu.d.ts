@@ -2,6 +2,7 @@
 /* eslint-disable */
 export declare class ChatSession {
   run(input: Input, config: RunConfig, progress?: (arg: Output) => boolean | undefined | null): Output
+  reset(): void
 }
 
 export declare class Engine {

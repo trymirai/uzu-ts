@@ -21,4 +21,8 @@ export class ChatSession {
         const napiOutput = this.napiChatSession.run(napiInput, napiConfig, napiProgress);
         return Output.fromNapi(napiOutput);
     }
+
+    reset(): void {
+        this.napiChatSession.reset();
+    }
 }
