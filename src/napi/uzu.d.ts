@@ -174,8 +174,7 @@ export interface RunStats {
 
 export type SamplingMethod =
   | { type: 'Greedy' }
-  | { type: 'Temperature', temperature: number }
-  | { type: 'TopP', topP: number }
+  | { type: 'Stochastic', temperature?: number, topK?: number, topP?: number }
 
 export type SamplingPolicy =
   | { type: 'Default' }

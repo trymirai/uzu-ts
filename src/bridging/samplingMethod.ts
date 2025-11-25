@@ -13,16 +13,19 @@ export class SamplingMethod implements ToNapi<NapiSamplingMethod> {
         return new SamplingMethod(napiSamplingMethod);
     }
 
-    static temperature(temperature: number): SamplingMethod {
-        const napiSamplingMethod: NapiSamplingMethod = {
-            type: 'Temperature',
-            temperature,
+    static stochastic(temperature: number | null, topK: number | null, topP: number | null): SamplingMethod {
+        let napiSamplingMethod: NapiSamplingMethod = {
+            type: 'Stochastic',
         };
-        return new SamplingMethod(napiSamplingMethod);
-    }
-
-    static topP(topP: number): SamplingMethod {
-        const napiSamplingMethod: NapiSamplingMethod = { type: 'TopP', topP };
+        if (temperature !== null) {
+            napiSamplingMethod.temperature = temperature;
+        }
+        if (topK !== null) {
+            napiSamplingMethod.topK = topK;
+        }
+        if (topP !== null) {
+            napiSamplingMethod.topP = topP;
+        }
         return new SamplingMethod(napiSamplingMethod);
     }
 
