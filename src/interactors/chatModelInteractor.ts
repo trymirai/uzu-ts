@@ -1,3 +1,4 @@
+import { AsyncBatchSize } from '../bridging/asyncBatchSize';
 import { ChatModel } from '../bridging/chatModel';
 import { Config } from '../bridging/config';
 import { ContextLength } from '../bridging/contextLength';
@@ -87,6 +88,11 @@ export class ChatModelInteractor implements Interactor<ChatModel> {
 
     samplingSeed(samplingSeed: SamplingSeed): ChatModelInteractor {
         const config = this.config.withSamplingSeed(samplingSeed);
+        return new ChatModelInteractor(this.modelsInteractor, this.entity, config);
+    }
+
+    asyncBatchSize(asyncBatchSize: AsyncBatchSize): ChatModelInteractor {
+        const config = this.config.withAsyncBatchSize(asyncBatchSize);
         return new ChatModelInteractor(this.modelsInteractor, this.entity, config);
     }
 

@@ -39,6 +39,10 @@ export declare class ProgressUpdate {
   progress: number
 }
 
+export type AsyncBatchSize =
+  | { type: 'Default' }
+  | { type: 'Custom', size: number }
+
 export interface ChatModel {
   readonly repoId: string
   readonly type: ModelType
@@ -59,6 +63,7 @@ export interface Config {
   contextLength: ContextLength
   prefillStepSize: PrefillStepSize
   samplingSeed: SamplingSeed
+  asyncBatchSize: AsyncBatchSize
 }
 
 export type ContextLength =

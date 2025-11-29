@@ -44,6 +44,7 @@ export const {
   StepStats,
   Text,
   TotalStats,
+  AsyncBatchSize,
   ContextLength,
   ContextMode,
   Input,

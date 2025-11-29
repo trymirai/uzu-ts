@@ -1,3 +1,4 @@
+export { AsyncBatchSize } from './bridging/asyncBatchSize';
 export { ChatModel } from './bridging/chatModel';
 export { ChatSession } from './bridging/chatSession';
 export { ClassificationFeature } from './bridging/classificationFeature';
