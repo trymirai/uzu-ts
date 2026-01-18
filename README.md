@@ -26,7 +26,7 @@ Add the `uzu` dependency to your project's `package.json`:
 
 ```json
 "dependencies": {
-    "@trymirai/uzu": "0.1.50"
+    "@trymirai/uzu": "0.1.51"
 }
 ```
 
@@ -52,6 +52,7 @@ pnpm run tsn examples/chatStaticContext.ts
 pnpm run tsn examples/summarization.ts
 pnpm run tsn examples/classification.ts
 pnpm run tsn examples/cloud.ts
+pnpm run tsn examples/structutedOutput.ts
 ```
 
 ### Chat
@@ -278,6 +279,45 @@ async function main() {
         .chatModel('openai/gpt-oss-120b')
         .reply('How LLMs work');
     console.log(output.text.original);
+}
+
+main().catch((error) => {
+    console.error(error);
+});
+```
+
+### Structured Output
+
+Sometimes you want the generated output to be valid JSON with predefined fields. You can use `GrammarConfig` to manually specify a JSON schema, or define the schema using [Zod](https://github.com/colinhacks/zod).
+
+```ts
+import Engine, { GrammarConfig } from '@trymirai/uzu';
+import * as z from "zod";
+
+const CountryType = z.object({
+    name: z.string(),
+    capital: z.string(),
+});
+const CountryListType = z.array(CountryType);
+
+async function main() {
+    const output = await Engine.create('API_KEY')
+        .chatModel('Qwen/Qwen3-0.6B')
+        .download((update) => {
+            console.log('Progress:', update.progress);
+        })
+        .session()
+        .enableThinking(false)
+        .grammarConfig(GrammarConfig.fromType(CountryListType))
+        .reply(
+            "Give me a JSON object containing a list of 3 countries, where each country has name and capital fields",
+            (partialOutput) => {
+                return true;
+            },
+        );
+
+    const countries = output.text.parsed.structuredResponse(CountryListType);
+    console.log(countries);
 }
 
 main().catch((error) => {

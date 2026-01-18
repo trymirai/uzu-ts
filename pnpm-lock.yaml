@@ -6,6 +6,10 @@ settings:
 
 importers:
     .:
+        dependencies:
+            zod:
+                specifier: ^4.2.1
+                version: 4.2.1
         devDependencies:
             '@arethetypeswrong/cli':
                 specifier: ^0.17.0
@@ -3429,6 +3433,12 @@ packages:
             }
         engines: { node: '>=10' }
 
+    zod@4.2.1:
+        resolution:
+            {
+                integrity: sha512-0wZ1IRqGGhMP76gLqz8EyfBXKk0J2qo2+H3fi4mcUP/KtTocoX08nmIAHl1Z2kJIZbZee8KOpBCSNPRgauucjw==,
+            }
+
 snapshots:
     '@andrewbranch/untar.js@1.0.3': {}
 
@@ -5673,3 +5683,5 @@ snapshots:
     yn@3.1.1: {}
 
     yocto-queue@0.1.0: {}
+
+    zod@4.2.1: {}

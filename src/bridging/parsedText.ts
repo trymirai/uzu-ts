@@ -1,3 +1,4 @@
+import * as z from 'zod';
 import { ParsedText as NapiParsedText } from '../napi/uzu';
 
 export class ParsedText {
@@ -13,5 +14,14 @@ export class ParsedText {
         const chainOfThought = napiEntity.chainOfThought ?? null;
         const response = napiEntity.response ?? null;
         return new ParsedText(chainOfThought, response);
+    }
+
+    structuredResponse<T extends z.ZodType>(type: T): z.infer<T> | null {
+        if (this.response === null) {
+            return null;
+        }
+        const data = JSON.parse(this.response);
+        const result = type.parse(data);
+        return result;
     }
 }

@@ -47,6 +47,7 @@ export const {
   AsyncBatchSize,
   ContextLength,
   ContextMode,
+  GrammarConfig,
   Input,
   LicenseStatus,
   ModelStorageError,

@@ -10,6 +10,7 @@ export { DownloadProgressUpdate } from './bridging/downloadProgressUpdate';
 export { DownloadPhase, DownloadState } from './bridging/downloadState';
 export { Engine as default } from './bridging/engine';
 export { FinishReason } from './bridging/finishReason';
+export { GrammarConfig } from './bridging/grammarConfig';
 export { Input } from './bridging/input';
 export { Message } from './bridging/message';
 export { ModelType } from './bridging/modelType';

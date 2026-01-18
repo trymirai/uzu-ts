@@ -1,4 +1,5 @@
 import { ChatSession } from '../bridging/chatSession';
+import { GrammarConfig } from '../bridging/grammarConfig';
 import { Input } from '../bridging/input';
 import { Message } from '../bridging/message';
 import { Output } from '../bridging/output';
@@ -46,6 +47,11 @@ export class ChatSessionInteractor implements Interactor<ChatSession> {
 
     samplingMethod(samplingMethod: SamplingMethod): ChatSessionInteractor {
         const config = this.config.withSamplingPolicy(SamplingPolicy.custom(samplingMethod));
+        return new ChatSessionInteractor(this.modelInteractor, this.entity, config);
+    }
+
+    grammarConfig(grammarConfig: GrammarConfig | null): ChatSessionInteractor {
+        const config = this.config.withGrammarConfig(grammarConfig);
         return new ChatSessionInteractor(this.modelInteractor, this.entity, config);
     }
 

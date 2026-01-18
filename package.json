@@ -3,6 +3,9 @@
     "cpu": [
         "arm64"
     ],
+    "dependencies": {
+        "zod": "^4.2.1"
+    },
     "description": "A high-performance inference engine for AI models",
     "devDependencies": {
         "@arethetypeswrong/cli": "^0.17.0",
@@ -67,5 +70,5 @@
     },
     "type": "commonjs",
     "types": "dist/index.d.ts",
-    "version": "0.1.50"
+    "version": "0.1.51"
 }

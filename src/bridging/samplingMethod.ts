@@ -13,7 +13,12 @@ export class SamplingMethod implements ToNapi<NapiSamplingMethod> {
         return new SamplingMethod(napiSamplingMethod);
     }
 
-    static stochastic(temperature: number | null, topK: number | null, topP: number | null): SamplingMethod {
+    static stochastic(
+        temperature: number | null,
+        topK: number | null,
+        topP: number | null,
+        minP: number | null,
+    ): SamplingMethod {
         let napiSamplingMethod: NapiSamplingMethod = {
             type: 'Stochastic',
         };
@@ -25,6 +30,9 @@ export class SamplingMethod implements ToNapi<NapiSamplingMethod> {
         }
         if (topP !== null) {
             napiSamplingMethod.topP = topP;
+        }
+        if (minP !== null) {
+            napiSamplingMethod.minP = minP;
         }
         return new SamplingMethod(napiSamplingMethod);
     }
