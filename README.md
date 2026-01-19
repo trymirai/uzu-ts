@@ -26,7 +26,7 @@ Add the `uzu` dependency to your project's `package.json`:
 
 ```json
 "dependencies": {
-    "@trymirai/uzu": "0.1.51"
+    "@trymirai/uzu": "0.2.0"
 }
 ```
 

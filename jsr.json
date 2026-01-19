@@ -2,5 +2,5 @@
     "exports": { ".": "./index.ts" },
     "name": "@trymirai/uzu",
     "publish": { "exclude": ["!."] },
-    "version": "0.1.51"
+    "version": "0.2.0"
 }
