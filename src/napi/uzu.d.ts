@@ -10,6 +10,7 @@ export declare class Engine {
   getChatModels(types: Array<ModelType>): Promise<Array<ChatModel>>
   getModelDownloadState(repoId: string): ModelDownloadState
   createModelDownloadHandle(repoId: string): ModelDownloadHandle
+  benchmark(task: BenchmarksTask): Promise<Array<BenchmarksResult>>
   constructor()
   createChatSession(model: ChatModel, config: Config): ChatSession
   registerLicenseStatusHandler(callback?: ((arg: LicenseStatus) => void) | undefined | null): void
@@ -43,6 +44,36 @@ export type AsyncBatchSize =
   | { type: 'Default' }
   | { type: 'Custom', size: number }
 
+export interface BenchmarksDevice {
+  osName?: string
+  cpuName?: string
+  memoryTotal: number
+}
+
+export interface BenchmarksResult {
+  task: BenchmarksTask
+  device: BenchmarksDevice
+  engineVersion: string
+  timestamp: number
+  precision?: DataType
+  memoryUsed?: number
+  tokensCountInput: number
+  tokensCountOutput: number
+  timeToFirstToken: number
+  promptTokensPerSecond: number
+  generateTokensPerSecond?: number
+  text: string
+}
+
+export interface BenchmarksTask {
+  identifier: string
+  repoId: string
+  numberOfRuns: number
+  tokensLimit: number
+  messages: Array<Message>
+  greedy: boolean
+}
+
 export interface ChatModel {
   readonly repoId: string
   readonly type: ModelType
@@ -75,6 +106,14 @@ export type ContextMode =
   | { type: 'None' }
   | { type: 'Static', input: Input }
   | { type: 'Dynamic' }
+
+export declare const enum DataType {
+  BFloat16 = 0,
+  Float16 = 1,
+  Float32 = 2,
+  Int4 = 3,
+  Int8 = 4
+}
 
 export declare const enum FinishReason {
   Stop = 0,
