@@ -10,7 +10,7 @@ export declare class Engine {
   getChatModels(types: Array<ModelType>): Promise<Array<ChatModel>>
   getModelDownloadState(repoId: string): ModelDownloadState
   createModelDownloadHandle(repoId: string): ModelDownloadHandle
-  benchmark(task: BenchmarksTask): Promise<Array<BenchmarksResult>>
+  benchmark(task: BenchmarksTask, prefillStepSize?: number | undefined | null): Promise<Array<BenchmarksResult>>
   constructor()
   createChatSession(model: ChatModel, config: Config): ChatSession
   registerLicenseStatusHandler(callback?: ((arg: LicenseStatus) => void) | undefined | null): void
