@@ -4,8 +4,6 @@
   </picture>
 </p>
 
-<a href="https://artifacts.trymirai.com/social/about_us.mp3"><img src="https://img.shields.io/badge/Listen-Podcast-red" alt="Listen to our podcast"></a>
-<a href="https://docsend.com/v/76bpr/mirai2025"><img src="https://img.shields.io/badge/View-Deck-red" alt="View our deck"></a>
 <a href="https://discord.com/invite/trymirai"><img src="https://img.shields.io/discord/1377764166764462120?label=Discord" alt="Discord"></a>
 <a href="mailto:contact@getmirai.co?subject=Interested%20in%20Mirai"><img src="https://img.shields.io/badge/Send-Email-green" alt="Contact us"></a>
 <a href="https://docs.trymirai.com/app-integration/overview"><img src="https://img.shields.io/badge/Read-Docs-blue" alt="Read docs"></a>
@@ -26,7 +24,7 @@ Add the `uzu` dependency to your project's `package.json`:
 
 ```json
 "dependencies": {
-    "@trymirai/uzu": "0.2.10"
+    "@trymirai/uzu": "0.2.20"
 }
 ```
 
@@ -47,6 +45,7 @@ Place the `API_KEY` you obtained earlier in the corresponding example file, and 
 
 ```bash
 pnpm run tsn examples/chat.ts
+pnpm run tsn examples/chatWithSpeculator.ts
 pnpm run tsn examples/chatDynamicContext.ts
 pnpm run tsn examples/chatStaticContext.ts
 pnpm run tsn examples/summarization.ts
@@ -78,6 +77,51 @@ async function main() {
             },
         );
     console.log(output.text.original);
+}
+
+main().catch((error) => {
+    console.error(error);
+});
+```
+
+### Speedup with speculative decoding
+
+Speculative decoding allows a significant increase in generation speed. For each model, we train a small n-gram model (under 50 MB) tailored to a specific domain or use case. In general chat scenarios, you can use the `Chat` preset, which will automatically use the corresponding speculator:
+
+```ts
+import Engine, { Message, Preset } from '@trymirai/uzu';
+
+async function main() {
+    const engine = Engine.create('API_KEY');
+    const model = engine
+        .chatModel('Qwen/Qwen3-0.6B')
+        .download((update) => {
+            console.log('Progress:', update.progress);
+        });
+
+    const messages = [
+        Message.system('You are a helpful assistant'),
+        Message.user('Tell me a short, funny story about a robot')
+    ];
+
+    const outputGeneral = await model
+        .replyToMessages(
+            messages,
+            (partialOutput) => {
+                return true;
+            },
+        );
+    console.log('Generation speed t/s (general):', outputGeneral.stats.generateStats?.tokensPerSecond ?? 0);
+
+    const outputWithSpeculator = await model
+        .preset(Preset.chat())
+        .replyToMessages(
+            messages,
+            (partialOutput) => {
+                return true;
+            },
+        );
+    console.log('Generation speed t/s (with chat speculator):', outputWithSpeculator.stats.generateStats?.tokensPerSecond ?? 0);
 }
 
 main().catch((error) => {

@@ -28,6 +28,20 @@ export class Preset implements ToNapi<NapiPreset> {
         return new Preset(napiPreset);
     }
 
+    static nGramSpeculator(useCase: string, numberOfSpeculatedTokens: number): Preset {
+        const napiPreset: NapiPreset = {
+            type: 'NGramSpeculator',
+            useCase,
+            numberOfSpeculatedTokens,
+        };
+        return new Preset(napiPreset);
+    }
+
+    static chat(): Preset {
+        const napiPreset: NapiPreset = { type: 'Chat' };
+        return new Preset(napiPreset);
+    }
+
     toNapi(): NapiPreset {
         return this.napiPreset;
     }

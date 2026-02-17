@@ -203,6 +203,8 @@ export type Preset =
   | { type: 'General' }
   | { type: 'Classification', feature: ClassificationFeature }
   | { type: 'Summarization' }
+  | { type: 'NGramSpeculator', useCase: string, numberOfSpeculatedTokens: number }
+  | { type: 'Chat' }
 
 export declare const enum Role {
   System = 0,

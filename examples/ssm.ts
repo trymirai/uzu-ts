@@ -3,7 +3,7 @@ import Engine from '@trymirai/uzu';
 async function main() {
     const output = await Engine
         .create('API_KEY')
-        .chatModel('LiquidAI/LFM2-700M')
+        .chatModel('cartesia-ai/Llamba-1B-4bit-mlx')
         .download((update) => {
             console.log('Progress:', update.progress);
         })
